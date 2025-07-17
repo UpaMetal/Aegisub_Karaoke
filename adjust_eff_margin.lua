@@ -62,7 +62,6 @@ function adjust_eff_margin(spacing, overlapped_pixels)
                             lastl.left = lastl.left - adjust_dis
                             lastl.right = lastl.right - adjust_dis
                         end
-                        _G.aegisub.log("上行存在几乎要超出屏幕的文字,已自动调整\n")
                     end
 
                     if bottomLine_width - right_eff_margin > meta.res_x - 10 then
@@ -76,13 +75,12 @@ function adjust_eff_margin(spacing, overlapped_pixels)
                             l.left = l.left + adjust_dis
                             l.right = l.right + adjust_dis
                         end
-                        _G.aegisub.log("下行存在几乎要超出屏幕外的文字,已自动调整\n")
                     end
                 end
             else
                 if topLine_width - left_eff_margin > meta.res_x - 10 then
                     _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
-                elseif topLine_width + left_eff_margin > meta.res_x then
+                else
                     local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                     lastl.left = lastl.left - adjust_dis
                     lastl.right = lastl.right - adjust_dis
@@ -91,22 +89,12 @@ function adjust_eff_margin(spacing, overlapped_pixels)
                         lastl.left = lastl.left - adjust_dis
                         lastl.right = lastl.right - adjust_dis
                     end
-                    _G.aegisub.log("上行存在几乎要超出屏幕的文字,已自动调整\n")
-                else
-                    local adjust_dis = (meta.res_x - topLine_width) / 2
-                    lastl.left = lastl.left + adjust_dis
-                    lastl.right = lastl.right + adjust_dis
-                    while lastl.logic_prev do
-                        lastl = lastl.logic_prev
-                        lastl.left = lastl.left + adjust_dis
-                        lastl.right = lastl.right + adjust_dis
-                    end
                 end
             end
         else
             if topLine_width - left_eff_margin > meta.res_x - 10 then
                 _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
-            elseif topLine_width + left_eff_margin > meta.res_x then
+            else
                 local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                 lastl.left = lastl.left - adjust_dis
                 lastl.right = lastl.right - adjust_dis
@@ -114,16 +102,6 @@ function adjust_eff_margin(spacing, overlapped_pixels)
                     lastl = lastl.logic_prev
                     lastl.left = lastl.left - adjust_dis
                     lastl.right = lastl.right - adjust_dis
-                end
-                _G.aegisub.log("上行存在几乎要超出屏幕的文字,已自动调整\n")
-            else
-                local adjust_dis = (meta.res_x - topLine_width) / 2
-                lastl.left = lastl.left + adjust_dis
-                lastl.right = lastl.right + adjust_dis
-                while lastl.logic_prev do
-                    lastl = lastl.logic_prev
-                    lastl.left = lastl.left + adjust_dis
-                    lastl.right = lastl.right + adjust_dis
                 end
             end
         end
