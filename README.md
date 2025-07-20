@@ -13,8 +13,9 @@ Aegisub_Karaoke/
 │ &nbsp;&nbsp;└── [kara-templater-v1.lua](automation/autoload/kara-templater-v1.lua) # 修改后的滑动窗口式执行的**kara-templater.lua**,在`line`行只有`line.prev`和`line.next`生效,不可链式调用  
 │ └── [include](automation/include/)/  
 │ &nbsp;&nbsp;├── [UpaMetal.lua](automation/include/UpaMetal.lua) # 一些我个人汇总的函数库，来源与其他创作者或项目以及我自己编写的部分  
-│ &nbsp;&nbsp;├── [utils-auto4.lua](automation/include/utils-auto4.lua) # 修改后的**utils-auto4.lua**代码, 引入了我自己的**UpaMeta.lua**  
-├── [functionSet](functionSet/)/ # 存放单函数形式的lua文件    
+│ &nbsp;&nbsp;└── [utils-auto4.lua](automation/include/utils-auto4.lua) # 修改后的**utils-auto4.lua**代码, 引入了我自己的**UpaMetal.lua**  
+├── [functionSet](functionSet/)/ # 存放单函数形式的lua文件  
+├── [ass](ass/)/ # 存放ass字幕文件        
 ├── [docs](docs/)/ # 存放对应位置的文档   
 └── [img](img/)/  # 一些图片    
 

@@ -33,7 +33,11 @@ UpaMetal = {
     algorithm = {
         -- 根据给出的一次函数(水平方向)计算给出位置的对应时间,输入为区域的左边界x值,右边界x值,对应的时间tx1,tx2,期望得到对应t的x坐标
         linear_calculate_time_from_position = function (start_x_position, end_x_position, start_time, end_time, x_position)
-            return start_time + (end_time - start_time) * (x_position - start_x_position) / (end_x_position - start_x_position)
+            if x_position == nil then
+                return 0
+            else
+                return start_time + (end_time - start_time) * (x_position - start_x_position) / (end_x_position - start_x_position)
+            end
         end,
         -- 返回当前syl的假名注音表，下标代表分别是第几个假名注音，对应的值为其持续时间，支持非首尾的负K值占位空串(会将负时间平摊到其相邻两个的假名上)
         get_furi_K_table_from_syl = function(syl)
@@ -86,6 +90,7 @@ UpaMetal = {
                     l = l.logic_next
                     l.left = l.prev.right + spacing
                     l.right = l.left + l.width
+                    l.center = (l.left + l.right) / 2
                     topLine_width = topLine_width + spacing + l.width
                 end
                 local lastl = l
@@ -103,6 +108,7 @@ UpaMetal = {
                             bottoml = bottoml.logic_prev
                             bottoml.right = bottoml.next.left - spacing
                             bottoml.left = bottoml.right - bottoml.width
+                            bottoml.center = (bottoml.left + bottoml.right) / 2
                         end
                     end
                     if(bottomLine_width ~= 0) then
@@ -110,18 +116,22 @@ UpaMetal = {
                             local adjust_dis = (meta.res_x + overlapped_pixels - topLine_width - bottomLine_width) / 2
                             l.left = l.left - adjust_dis
                             l.right = l.right - adjust_dis
+                            l.center = (l.left + l.right) / 2
                             while l.logic_prev do
                                 l = l.logic_prev
                                 l.left = l.left - adjust_dis
                                 l.right = l.right - adjust_dis
+                                l.center = (l.left + l.right) / 2
                             end
                             l = l.prev
                             l.left = l.left + adjust_dis
                             l.right = l.right + adjust_dis
+                            l.center = (l.left + l.right) / 2
                             while l.logic_prev do
                                 l = l.logic_prev
                                 l.left = l.left + adjust_dis
                                 l.right = l.right + adjust_dis
+                                l.center = (l.left + l.right) / 2
                             end
                         else
                             if topLine_width - left_eff_margin > meta.res_x - 10 then
@@ -130,10 +140,12 @@ UpaMetal = {
                                 local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                                 lastl.left = lastl.left - adjust_dis
                                 lastl.right = lastl.right - adjust_dis
+                                lastl.center = (lastl.left + lastl.right) / 2
                                 while lastl.logic_prev do
                                     lastl = lastl.logic_prev
                                     lastl.left = lastl.left - adjust_dis
                                     lastl.right = lastl.right - adjust_dis
+                                    lastl.center = (lastl.left + lastl.right) / 2
                                 end
                             end
 
@@ -143,10 +155,12 @@ UpaMetal = {
                                 local adjust_dis = right_eff_margin - (meta.res_x - bottomLine_width + right_eff_margin) / 2
                                 l.left = l.left + adjust_dis
                                 l.right = l.right + adjust_dis
+                                l.center = (l.left + l.right) / 2
                                 while l.logic_prev do
                                     l = l.logic_prev
                                     l.left = l.left + adjust_dis
                                     l.right = l.right + adjust_dis
+                                    l.center = (l.left + l.right) / 2
                                 end
                             end
                         end
@@ -157,10 +171,12 @@ UpaMetal = {
                             local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                             lastl.left = lastl.left - adjust_dis
                             lastl.right = lastl.right - adjust_dis
+                            lastl.center = (lastl.left + lastl.right) / 2
                             while lastl.logic_prev do
                                 lastl = lastl.logic_prev
                                 lastl.left = lastl.left - adjust_dis
                                 lastl.right = lastl.right - adjust_dis
+                                lastl.center = (lastl.left + lastl.right) / 2
                             end
                         end
                     end
@@ -171,10 +187,12 @@ UpaMetal = {
                         local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                         lastl.left = lastl.left - adjust_dis
                         lastl.right = lastl.right - adjust_dis
+                        lastl.center = (lastl.left + lastl.right) / 2
                         while lastl.logic_prev do
                             lastl = lastl.logic_prev
                             lastl.left = lastl.left - adjust_dis
                             lastl.right = lastl.right - adjust_dis
+                            lastl.center = (lastl.left + lastl.right) / 2
                         end
                     end
                 end
@@ -270,6 +288,7 @@ UpaMetal = {
         end,
         -- 五线谱(五条细矩形), 输入为单条线长度，宽度，相邻两线的距离,绘图时钟方向(输入为nil则默认为0-顺时针)
         staff = function(length, width, distance, clockwise)
+            clockwise = clockwise or 0
             local S = "m %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f m %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f m %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f m %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f m %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f "
             local a =  length / 2
             local b =  width / 2

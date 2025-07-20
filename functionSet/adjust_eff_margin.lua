@@ -14,6 +14,7 @@ function adjust_eff_margin(line, spacing, overlapped_pixels)
             l = l.logic_next
             l.left = l.prev.right + spacing
             l.right = l.left + l.width
+            l.center = (l.left + l.right) / 2
             topLine_width = topLine_width + spacing + l.width
         end
         local lastl = l
@@ -31,6 +32,7 @@ function adjust_eff_margin(line, spacing, overlapped_pixels)
                     bottoml = bottoml.logic_prev
                     bottoml.right = bottoml.next.left - spacing
                     bottoml.left = bottoml.right - bottoml.width
+                    bottoml.center = (bottoml.left + bottoml.right) / 2
                 end
             end
             if(bottomLine_width ~= 0) then
@@ -38,18 +40,22 @@ function adjust_eff_margin(line, spacing, overlapped_pixels)
                     local adjust_dis = (meta.res_x + overlapped_pixels - topLine_width - bottomLine_width) / 2
                     l.left = l.left - adjust_dis
                     l.right = l.right - adjust_dis
+                    l.center = (l.left + l.right) / 2
                     while l.logic_prev do
                         l = l.logic_prev
                         l.left = l.left - adjust_dis
                         l.right = l.right - adjust_dis
+                        l.center = (l.left + l.right) / 2
                     end
                     l = l.prev
                     l.left = l.left + adjust_dis
                     l.right = l.right + adjust_dis
+                    l.center = (l.left + l.right) / 2
                     while l.logic_prev do
                         l = l.logic_prev
                         l.left = l.left + adjust_dis
                         l.right = l.right + adjust_dis
+                        l.center = (l.left + l.right) / 2
                     end
                 else
                     if topLine_width - left_eff_margin > meta.res_x - 10 then
@@ -58,10 +64,12 @@ function adjust_eff_margin(line, spacing, overlapped_pixels)
                         local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                         lastl.left = lastl.left - adjust_dis
                         lastl.right = lastl.right - adjust_dis
+                        lastl.center = (lastl.left + lastl.right) / 2
                         while lastl.logic_prev do
                             lastl = lastl.logic_prev
                             lastl.left = lastl.left - adjust_dis
                             lastl.right = lastl.right - adjust_dis
+                            lastl.center = (lastl.left + lastl.right) / 2
                         end
                     end
 
@@ -71,10 +79,12 @@ function adjust_eff_margin(line, spacing, overlapped_pixels)
                         local adjust_dis = right_eff_margin - (meta.res_x - bottomLine_width + right_eff_margin) / 2
                         l.left = l.left + adjust_dis
                         l.right = l.right + adjust_dis
+                        l.center = (l.left + l.right) / 2
                         while l.logic_prev do
                             l = l.logic_prev
                             l.left = l.left + adjust_dis
                             l.right = l.right + adjust_dis
+                            l.center = (l.left + l.right) / 2
                         end
                     end
                 end
@@ -85,10 +95,12 @@ function adjust_eff_margin(line, spacing, overlapped_pixels)
                     local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                     lastl.left = lastl.left - adjust_dis
                     lastl.right = lastl.right - adjust_dis
+                    lastl.center = (lastl.left + lastl.right) / 2
                     while lastl.logic_prev do
                         lastl = lastl.logic_prev
                         lastl.left = lastl.left - adjust_dis
                         lastl.right = lastl.right - adjust_dis
+                        lastl.center = (lastl.left + lastl.right) / 2
                     end
                 end
             end
@@ -99,10 +111,12 @@ function adjust_eff_margin(line, spacing, overlapped_pixels)
                 local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                 lastl.left = lastl.left - adjust_dis
                 lastl.right = lastl.right - adjust_dis
+                lastl.center = (lastl.left + lastl.right) / 2
                 while lastl.logic_prev do
                     lastl = lastl.logic_prev
                     lastl.left = lastl.left - adjust_dis
                     lastl.right = lastl.right - adjust_dis
+                    lastl.center = (lastl.left + lastl.right) / 2
                 end
             end
         end
