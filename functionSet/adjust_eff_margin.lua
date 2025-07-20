@@ -1,4 +1,5 @@
-function adjust_eff_margin(spacing, overlapped_pixels)
+
+function adjust_eff_margin(line, spacing, overlapped_pixels)
     spacing = spacing or 30
     overlapped_pixels = overlapped_pixels or 20
     local l = line
