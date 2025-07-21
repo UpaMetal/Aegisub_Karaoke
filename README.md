@@ -17,7 +17,8 @@ Aegisub_Karaoke/
 ├── [functionSet](functionSet/)/ # 存放单函数形式的lua文件  
 ├── [ass](ass/)/ # 存放ass字幕文件        
 ├── [docs](docs/)/ # 存放对应位置的文档  
-├── [fonts](fonts/)/ # 存放一些修改后的字体     
+├── [fonts](fonts/)/ # 存放一些修改后的字体  
+├── [python](python/)/ # 存放一些python脚本，有些是我当时还不会lua写的，后续可能会将一些转为lua的自动化脚本       
 └── [img](img/)/  # 一些图片    
 
 
