@@ -33,7 +33,7 @@
 -- 滑动窗口式，仅保留3行缓存
 local tr = aegisub.gettext
 
-script_name = tr"Karaoke Templater"
+script_name = tr"卡拉OK模板执行器滑动窗口版"
 script_description = tr"Macro and export filter to apply karaoke effects using the template language"
 script_author = "Niels Martin Hansen"
 script_version = "2.1.7"
@@ -889,5 +889,5 @@ function macro_can_template(subs)
 	return false
 end
 
-aegisub.register_macro(tr"Apply karaoke template", tr"Applies karaoke effects from templates", macro_apply_templates, macro_can_template)
+aegisub.register_macro(tr"卡拉OK模板滑动执行", tr"Applies karaoke effects from templates", macro_apply_templates, macro_can_template)
 aegisub.register_filter(tr"Karaoke template", tr"Apply karaoke effect templates to the subtitles.\n\nSee the help file for information on how to use this.", 2000, filter_apply_templates)

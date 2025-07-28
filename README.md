@@ -9,8 +9,8 @@
 Aegisub_Karaoke/  
 ├── [automation](automation/)/ # aegisub 自动化脚本目录    
 │ ├── [autoload](automation/autoload/)/  
-│ &nbsp;&nbsp;├── [kara-templater.lua](automation/autoload/kara-templater.lua) # 修改后的分块执行`karaskel.preproc_line()`与`apply_line()`的**kara-templater.lua**,对于任意`line`行,所有的`line`行都可以被调用   
-│ &nbsp;&nbsp;└── [kara-templater-v1.lua](automation/autoload/kara-templater-v1.lua) # 修改后的滑动窗口式执行的**kara-templater.lua**,在`line`行只有`line.prev`和`line.next`生效,不可链式调用  
+│ &nbsp;&nbsp;├── [kara-templater-V2.lua](automation/autoload/kara-templater-V2.lua) # 修改后的分块执行`karaskel.preproc_line()`与`apply_line()`的**kara-templater.lua**,对于任意`line`行,所有的`line`行都可以被调用   
+│ &nbsp;&nbsp;└── [kara-templater-V1.lua](automation/autoload/kara-templater-V1.lua) # 修改后的滑动窗口式执行的**kara-templater.lua**,在`line`行只有`line.prev`和`line.next`生效,不可链式调用  
 │ └── [include](automation/include/)/  
 │ &nbsp;&nbsp;├── [UpaMetal.lua](automation/include/UpaMetal.lua) # 一些我个人汇总的函数库，来源与其他创作者或项目以及我自己编写的部分  
 │ &nbsp;&nbsp;└── [utils-auto4.lua](automation/include/utils-auto4.lua) # 修改后的**utils-auto4.lua**代码, 引入了我自己的**UpaMetal.lua**  

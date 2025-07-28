@@ -63,15 +63,15 @@ UpaMetal = {
         --将行的开始时间与结束时间转换为帧，由于aegisub是以厘秒为单位，理论上此算法应只用于百帧以内的视频
         --开始帧和结束帧分别都是在此时间段内会被渲染的帧的范围区间[开始帧, 结束帧），也就是说[开始帧, 结束帧 - 1]是会被渲染的
         line_time_to_frame = function(line, frame_rate)   
-            return math.max(math.ceil(line.start_time  * frame_rate / 1000  - 1), 0), math.ceil(line_end_time  * frame_rate / 1000) 
+            return math.floor(line.start_time  * frame_rate / 1000), math.ceil(line.end_time  * frame_rate / 1000) 
         end,
         -- 将时间转换为帧，当前时间属于第几帧的范围内
         time_to_frame = function(time, frame_rate)
-            return math.max(math.ceil(line.start_time  * frame_rate / 1000  - 1), 0)
+            return math.floor(time  * frame_rate / 1000)
         end,
-        -- 将帧转换为时间，要让此帧显示的最大开始时间
+        -- 将帧转换为时间，要让此帧显示的最小开始时间
         frame_to_time = function(frame, frame_rate)
-            return math.ceil(frame * 100 / frame_rate - 1) * 10
+            return math.floor(frame * 100 / frame_rate - 1) * 10
         end,
 
         -- 自动调整上下总行行距
@@ -83,7 +83,7 @@ UpaMetal = {
             local bottomLine_width = 0
             local left_eff_margin = 0
             local right_eff_margin = 0
-            if l.halign == "left" and not l.logic_prev then
+            if l.halign == "left" and not l.logic_prev and line.actor ~= "cancel" then
                 left_eff_margin = l.left
                 topLine_width = l.right
                 while l.logic_next do
@@ -213,6 +213,20 @@ UpaMetal = {
                 end
             end
             return table.concat(result, " ")
+        end,
+        --封闭图形
+        close = function(ass_shape)       
+            local s={}      
+            for m in ass_shape:gmatch("m[^m]+") do          
+                local start_point=m:match(" [-.%d]+ [-.%d]+ ")          
+                local end_point=m:match(" [-.%d]+ [-.%d]+ $")           
+                if start_point==end_point then              
+                    s[#s+1]=m           
+                else            
+                    s[#s+1]=m.." l"..start_point        
+                end     
+            end     
+            return table.concat(s)   
         end,
         -- 如果一行里的两个图形绘图路径时钟方向相同则取并集,否则取交集的补集
         -- 固定直径圆形,可指定路径方向,入为圆的直径,绘图时钟方向(输入为nil则默认为0-顺时针)
@@ -378,7 +392,8 @@ UpaMetal = {
             local CONTADOR = 0                               
             local count = math.ceil(line.duration / Intervalo)                 			
             local ARREGLO = {Dato1, Dato2}    			              
-            for i = 1, count do               CONTADOR = i    	    	    		
+            for i = 1, count do               
+                CONTADOR = i    	    	    		
                 if Dato1 and Dato2 then     					
                     if  CONTADOR % 2 == 0 then    								
                         SUERTE = ARREGLO[1]    					
