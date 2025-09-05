@@ -7,18 +7,17 @@ PlayResY: 1080
 
 [Aegisub Project Garbage]
 Last Style Storage: Default
-Audio File: ed2.mp4
-Video File: ed2.mp4
+Audio File: op3.mp4
+Video File: op3.mp4
 Video AR Mode: 4
 Video AR Value: 1.777778
-Video Zoom Percent: 0.500000
-Scroll Position: 14
-Active Line: 45
-Video Position: 2141
+Video Zoom Percent: 0.625000
+Active Line: 43
+Video Position: 314
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: K3-furigana,Source Han Serif JP Narrow Heav,60,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,20,0,1,2,4,2,230,30,237,1
+Style: K3-furigana,Source Han Serif JP Narrow Heav,55,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,15,0,1,2,4,2,300,30,237,1
 Style: K2-furigana,Source Han Serif JP Narrow Heav,70,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,15,0,1,3,6,2,0,0,47,1
 Style: K1-furigana,Source Han Serif JP Narrow Heav,70,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,15,0,1,3,6,2,0,0,237,1
 Style: 五线谱-furigana,思源黑体 Heavy,50,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0.5,2,50,50,100,1
@@ -27,7 +26,7 @@ Style: Default,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,
 Style: 五线谱,思源黑体 Heavy,100,&H00FFFEB7,&H000000FF,&H000000FF,&H00000000,0,0,0,0,100,100,0,0,1,0,2,5,50,30,100,1
 Style: K1,Source Han Serif JP Narrow Heav,120,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,20,0,1,4,8,1,230,30,237,1
 Style: K2,Source Han Serif JP Narrow Heav,120,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,20,0,1,4,8,3,30,200,47,1
-Style: K3,Source Han Serif JP Narrow Heav,120,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,20,0,1,4,8,2,30,30,450,1
+Style: K3,Source Han Serif JP Narrow Heav,110,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,20,0,1,4,8,1,300,30,237,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -36,9 +35,9 @@ Comment: 0,0:00:00.00,0:00:00.00,Default,字体定义,0,0,0,code once,furigana_o
 Comment: 0,0:00:00.00,0:00:00.00,Default,取色函数定义,0,0,0,code once,function singer_color(a)    if a ~= "" then return a else return "default" end end
 Comment: 0,0:00:00.00,0:00:00.00,Default,行左右间距调整,0,0,0,code line all,_G.UpaMetal.algorithm.adjust_eff_margin(meta, line);
 Comment: 0,0:00:00.00,0:00:00.00,Default,五线谱参数定义,0,0,0,code line all,staff_length[1] = line.width + 240;  width_length[1] = 6; staff_length[2] = line.width + 280;  width_length[2] = 5; staff_length[3] = line.width + 310;  width_length[3] = 4; staff_length[4] = line.width + 330;  width_length[4] = 3; staff_distance = line.height / 4;
-Comment: 0,0:00:00.00,0:00:00.00,Default,角色syl颜色定义,0,0,0,code line all,syl_color_table = {default = "\\3img(C:/temp/3.png, 0, 800)", kumiko = "\\3c&H2A61D1&", hazuki = "\\3c&H8A3EDA&", sapphire = "\\3c&H7B9B13&", reina = "\\3c&HCD005E&", kumiko_reina = "\\3vc(&H2A61D1&, &H2A61D1&, &HCD005E&, &HCD005E&)", hazuki_sapphire = "\\3vc(&H8A3EDA&, &H8A3EDA&, &H7B9B13&, &H7B9B13&)"}; kara_syl_color_table = {default = "\\1img(C:/temp/3.png, 0, 800)", kumiko = "\\1c&H2A61D1&" , hazuki = "\\1c&H8A3EDA&", sapphire = "\\1c&H7B9B13&", reina = "\\1c&HCD005E&", kumiko_reina = "\\1vc(&H2A61D1&, &H2A61D1&, &HCD005E&, &HCD005E&)", hazuki_sapphire = "\\1vc(&H8A3EDA&, &H8A3EDA&, &H7B9B13&, &H7B9B13&)"}; bord_syl_color_table = syl_color_table;
-Comment: 0,0:00:00.00,0:00:00.00,Default,角色furi颜色定义,0,0,0,code line all,furi_color_table = {default = "\\3img(C:/temp/3.png, 0, 800)", kumiko = "\\3c&H2A61D1&", hazuki = "\\3c&H8A3EDA&", sapphire = "\\3c&H7B9B13&", reina = "\\3c&HCD005E&", kumiko_reina = "\\3vc(&H2A61D1&, &H2A61D1&, &HCD005E&, &HCD005E&)", hazuki_sapphire = "\\3vc(&H8A3EDA&, &H8A3EDA&, &H7B9B13&, &H7B9B13&)"}; kara_furi_color_table = {default = "\\1img(C:/temp/3.png, 0, 800)", kumiko = "\\1c&H2A61D1&" , hazuki = "\\1c&H8A3EDA&", sapphire = "\\1c&H7B9B13&", reina = "\\1c&HCD005E&", kumiko_reina = "\\1vc(&H2A61D1&, &H2A61D1&, &HCD005E&, &HCD005E&)", hazuki_sapphire = "\\1vc(&H8A3EDA&, &H8A3EDA&, &H7B9B13&, &H7B9B13&)"};  bord_furi_color_table = furi_color_table;
-Comment: 0,0:00:00.00,0:00:00.00,Default,syl相关变量计算,0,0,0,code syl all,syl_ledge = line.left + syl.left - edge;   syl_redge = line.left + syl.right + edge + 12 - font_spacing;
+Comment: 0,0:00:00.00,0:00:00.00,Default,角色syl颜色定义,0,0,0,code line all,syl_color_table = {default = "\\3img(C:/temp/3.png, 0, 800)", spring = "\\3c&H36AF36&", summer = "\\3c&H0000FF&", autumn = "\\3c&H008CFF&", winter = "\\3c&HEBC461&"}; kara_syl_color_table = {default = "\\1img(C:/temp/3.png, 0, 800)", spring = "\\1c&H36AF36&", summer = "\\1c&H0000FF&", autumn = "\\1c&H008CFF&", winter = "\\1c&HEBC461&"}; bord_syl_color_table = syl_color_table;
+Comment: 0,0:00:00.00,0:00:00.00,Default,角色furi颜色定义,0,0,0,code line all,furi_color_table = {default = "\\3img(C:/temp/3.png, 0, 800)", spring = "\\3c&H36AF36&", summer = "\\3c&H0000FF&", autumn = "\\3c&H008CFF&", winter = "\\3c&HEBC461&"}; kara_furi_color_table = {default = "\\1img(C:/temp/3.png, 0, 800)", spring = "\\1c&H36AF36&", summer = "\\1c&H0000FF&", autumn = "\\1c&H008CFF&", winter = "\\1c&HEBC461&"};  bord_furi_color_table = furi_color_table;
+Comment: 0,0:00:00.00,0:00:00.00,五线谱,syl相关变量计算,0,0,0,code syl all,syl_ledge = line.left + syl.left - edge;   syl_redge = line.left + syl.right + edge + 12 - font_spacing;
 Comment: 0,0:00:00.00,0:00:00.00,Default,furi相关变量计算,0,0,0,code furi all,furi_ledge =line.left+ syl.left - edge * 0.75;        furi_redge = line.left + syl.right + 0.75 * edge + 9 - font_spacing * 3 / 4;
 Comment: 0,0:00:00.00,0:00:00.00,Default,音符参数记录,0,0,0,code syl all,note_number = math.random(2, 7); xangle1 = math.random(180); yangle1 = math.random(180); zangle1 = math.random(180); xangle2 = math.random(180); yangle2 = math.random(180); zangle2 = math.random(180);  xpos1 = math.random(-120,120); ypos1 = math.random(-80,40); xpos2 = math.random(-120,120); ypos2 = math.random(-80,40); color = _G.ass_color (_G.HSV_to_RGB(15*math.random(25),0.7,1));
 Comment: 1,0:00:00.00,0:00:00.00,Default,音符围绕飘动效果,0,0,0,template syl noblank notext all,!retime("line", 160, -120)!{\3c&HFFFFFF&\1c!color!\3a&H9F&\bord1\shad0\blur4\fsc!noteSize!\frx!xangle1!\fry!yangle1!\frz!zangle1!\fad(200, 0)\move(!$center+xpos1!,!$middle+ ypos1!,!$center+xpos2!,!$middle+ypos2!)\t(0,!line.duration!,\frx!xangle2!\fry!yangle2!\frz!zangle2!)\p1}!_G.UpaMetal.shape.note(note_number)!
@@ -57,23 +56,21 @@ Comment: 0,0:00:00.00,0:00:00.00,K1,前缀音符,0,0,0,template pre-line notext 
 Comment: 0,0:00:00.00,0:00:00.00,K1,前缀音符,0,0,0,template pre-line notext noblank all,{\an7\fscx70\pos(!line.left - 40!,!line.middle - 105!)\1c&HFFFF00&\3c&HFFFFFF&\bord0\shad1\p1\clip(!line.left - 170!, 0, !line.left - 170!, !meta.res_y!)\t(0, 160, \clip(!line.left - 170!, 0, !line.right + 160!, !meta.res_y!))\t(!$ldur - 160!, !$ldur!, \clip(!line.right + 160!, 0, !line.right + 160!, !meta.res_y!))}!_G.UpaMetal.shape.note(9)!
 Comment: 0,0:00:00.00,0:00:00.00,K2,前缀音符,0,0,0,template pre-line notext noblank,{\an7\fscx130\fscy160\pos(!line.left - 160!,!line.middle - 53!)\1c&HFFFF00&\3c&HFFFFFF&\bord0\shad2\p1\clip(!line.left - 170!, 0, !line.left - 170!, !meta.res_y!)\t(0, 160, \clip(!line.left - 170!, 0, !line.right + 160!, !meta.res_y!))\t(!$ldur - 160!, !$ldur!, \clip(!line.right + 160!, 0, !line.right + 160!, !meta.res_y!))}!_G.UpaMetal.shape.note(8)!
 Comment: 0,0:00:00.00,0:00:00.00,K3,前缀音符,0,0,0,template pre-line notext noblank,{\an7\fsc90\pos(!line.left - 110!,!line.middle!)\1c&HFFFF00&\3c&HFFFFFF&\bord0\shad2\p1\clip(!line.left - 170!, 0, !line.left - 170!, !meta.res_y!)\t(0, 160, \clip(!line.left - 170!, 0, !line.right + 160!, !meta.res_y!))\t(!$ldur - 160!, !$ldur!, \clip(!line.right + 160!, 0, !line.right + 160!, !meta.res_y!))}!_G.UpaMetal.shape.note(1)!
-Comment: 0,0:00:07.32,0:00:16.28,K1,,0,0,0,karaoke,{\k400}{\-kumiko}{\k18}割|<わ{\k8}り{\k17}切|<き{\k25}れ{\k25}な{\k14}い{\k16}想|<お{\k13}#|<も{\k14}い{\k48}を{\k12} {\k20}力|<ち{\k15}#|<か{\k13}#|<ら{\k27}に{\k27}変|<か{\k13}え{\k21}て{\k20}き{\k41}た{\k89}
-Comment: 0,0:00:07.32,0:00:20.20,K2,,0,0,0,karaoke,{\k833}{\-sapphire}{\k16}無|<む{\k12}謀|<ぼ{\k14}#|<う{\k20}だ{\k42}と{\k21}笑|<わ{\k10}#|<ら{\k16}わ{\k22}れ{\k26}た{\k15} {\k47}何|<な{\k62}#|<ん{\k46}度|<ど{\k46}も{\k40}
-Comment: 0,0:00:16.68,0:00:24.96,K1,,0,0,0,karaoke,{\k320}{\-hazuki}{\k23}毎|<ま{\k12}#|<い{\k15}日|<に{\k22}#|<ち{\k44}が{\k13}冒|<ぼ{\k10}#|<う{\k19}険|<け{\k31}#|<ん{\k24}で{\k2} {\k40}青|<せ{\k34}#|<い{\k34}春|<しゅ{\k10}#|<ん{\k28}で{\k147}
-Comment: 0,0:00:20.60,0:00:29.32,K2,,0,0,0,karaoke,{\k315}{\-reina}{\k25}新|<あ{\k28}#|<た{\k17}#|<ら{\k26}し{\k26}い{\k12}音|<お{\k16}#|<と{\k10}と{\k27}出|<で{\k20}会|<あ{\k27}っ{\k9}て{\k17}は{\k5} {\k30}磨|<み{\k27}#|<が{\k29}い{\k21}て{\k38}る{\k55}よ{\k92}
-Comment: 0,0:00:25.36,0:00:33.63,K1,,0,0,0,karaoke,{\k320}{\-kumiko}{\k39}本|<ほ{\k38}#|<ん{\k36}気|<き{\k20}で{\k14}や{\k12}っ{\k24}た{\k36}か{\k47}ら{\k55}こ{\k90}そ{\k96}
-Comment: 0,0:00:29.72,0:00:37.41,K2,,0,0,0,karaoke,{\k320}{\-kumiko}{\k83}こ{\k27}わ{\k18}い{\k35}瞬|<しゅ{\k29}#|<ん{\k25}間|<か{\k71}#|<ん{\k39}も{\k17}あ{\k11}る{\k15}け{\k39}ど{\k40}
-Comment: 0,0:00:34.03,0:00:42.28,K1,,0,0,0,karaoke,{\k320}{\-hazuki}{\k19}届|<と{\k12}#|<ど{\k13}け{\k28}た{\k12}い{\k2} {\-reina}{\k15}伸|<の{\k11}ば{\k16}し{\k28}た{\k10}い{\k339}
-Comment: 0,0:00:37.61,0:00:42.28,K2,,0,0,0,karaoke,{\k128}{\-sapphire}{\k18}奏|<か{\k10}#|<な{\k17}で{\k25}た{\k10}い{\k2} {\-kumiko}{\k16}叶|<か{\k11}#|<な{\k16}え{\k24}た{\k9}い{\k181}
-Comment: 0,0:00:40.10,0:00:46.09,K3,,0,0,0,karaoke,{\k40}{\k24}も{\k31}う{\k21}一|<い{\k34}#|<ち{\k40}度|<ど{\k27}息|<い{\k14}#|<き{\k11}を{\k14}吹|<ふ{\k27}き{\k18}込|<こ{\k34}む{\k4} {\k15}明日|<あ{\k53}#|<し{\k36}#|<た{\k30}へ{\k38}と{\k88}
-Comment: 0,0:00:42.68,0:00:50.17,K1,,0,0,0,karaoke,{\k320}{\k22}タ{\k9}ク{\k16}ト{\k11}に{\k14}導|<み{\k28}#|<ち{\k36}#|<び{\k25}か{\k24}れ{\k31}て{\k20}こ{\k11}こ{\k16}ま{\k9}で{\k19}来|<き{\k23}た{\k38}よ{\k77}
-Comment: 0,0:00:42.68,0:00:53.80,K2,,0,0,0,karaoke,{\k701}{\k22}あ{\k32}な{\k50}た{\k54}と{\k48}来|<き{\k37}た{\k28}ん{\k100}だ{\k40}
-Comment: 0,0:00:50.57,0:00:59.59,K1,,0,0,0,karaoke,{\k320}{\-kumiko_reina}{\k22}奏|<か{\k29}#|<な{\k23}で{\k22}て{\k11}い{\k17}る{\k8}の{\k24}は{\k3} {\-hazuki_sapphire}{\k11}人|<じ{\k8}#|<ん{\k25}生|<せ{\k12}#|<い{\k17}だ{\k350}
-Comment: 0,0:00:54.20,0:00:59.59,K2,,0,0,0,karaoke,{\k193}{\-kumiko_reina}{\k20}響|<ひ{\k12}#|<び{\k18}く{\k9}の{\k23}は{\k2} {\-hazuki_sapphire}{\k15}感|<か{\k11}#|<ん{\k17}情|<じょ{\k12}#|<う{\k29}だ{\k178}
-Comment: 0,0:00:56.89,0:01:03.33,K3,,0,0,0,karaoke,{\k110}{\k35}ず{\k19}っ{\k28}と{\k50}忘|<わ{\k64}#|<す{\k43}れ{\k39}な{\k27}い{\k49}か{\k49}ら{\k80}ね{\k51}
-Comment: 0,0:00:59.99,0:01:07.65,K1,,0,0,0,karaoke,{\k320}{\k17}光|<ひ{\k13}#|<か{\k10}る{\k13}音|<お{\k16}#|<と{\k28}が{\k38}涙|<な{\k27}#|<み{\k24}#|<だ{\k29}を{\k19}照|<て{\k10}ら{\k18}し{\k10}て{\k17}く{\k25}れ{\k30}る{\k102}
-Comment: 0,0:00:59.99,0:01:13.29,K2,,0,0,0,karaoke,{\k694}{\k31}辛|<つ{\k28}#|<ら{\k77}い{\k30}こ{\k29}と{\k21}ば{\k33}か{\k25}り{\k78}じゃ{\k31}な{\k46}い{\k207}
-Comment: 0,0:01:08.05,0:01:17.19,K1,,0,0,0,karaoke,{\k320}{\k26}だ{\k34}っ{\k28}て{\k22}{\k25}い{\k32}つ{\k30}も{\k15} {\k32}い{\k31}つ{\k30}も{\k18}{\k34}楽|<た{\k17}#|<の{\k54}し{\k37}か{\k28}っ{\k61}た{\k40}
-Comment: 0,0:01:13.69,0:01:20.05,K2,,0,0,0,karaoke,{\k320}{\k35}そ{\k43}う{\k30}で{\k31}しょ{\k130}う{\k7}?{\k40}
-Comment: 0,0:01:17.59,0:01:29.69,K1,,0,0,0,karaoke,{\k102}{\k23}ヴィ{\k42}ヴァー{\k18}チェ{\k1}!{\k23}歌|<う{\k14}#|<た{\k41}え{\k15} {\k6}五|<ご{\k16}線|<せ{\k15}#|<ん{\k27}の{\k18}上|<う{\k29}#|<え{\k72}で{\k746}
-Comment: 0,0:01:20.45,0:01:29.69,K2,,0,0,0,karaoke,{\k246}{\k28}ヴィ{\k43}ヴァー{\k11}チェ{\k2}!{\k26}響|<ひ{\k16}#|<び{\k37}け{\k15} {\k14}遠|<と{\k70}#|<お{\k23}く{\k16}の{\k43}春|<は{\k36}#|<る{\k248}に{\k50}
+Comment: 0,0:00:01.00,0:00:11.72,K1,,0,0,0,karaoke,{\k155}{\k30}後|<こ{\k33}#|<う{\k22}悔|<か{\k23}#|<い{\k28}も{\k5} {\k49}喜|<よ{\k22}#|<ろ{\k23}#|<こ{\k19}び{\k48}も{\k615}
+Comment: 0,0:00:01.00,0:00:11.72,K2,,0,0,0,karaoke,{\k489}{\k14}全|<ぜ{\k32}#|<ん{\k19}部|<ぶ{\k2}、{\k20}歌|<う{\k25}#|<た{\k21}に{\k19}な{\k142}れ{\k6}!{\k283}
+Comment: 0,0:00:12.92,0:00:19.43,K1,,0,0,0,karaoke,{\k288}{\k13}夕|<ゆ{\k10}#|<う{\k28}陽|<ひ{\k20}に{\k21}影|<か{\k18}#|<げ{\k25}の{\k10}び{\k31}る{\k22}教|<きょ{\k11}#|<う{\k25}室|<し{\k47}#|<つ{\k36}で{\k46}
+Comment: 0,0:00:12.92,0:00:26.15,K2,,0,0,0,karaoke,{\k631}{\k13}く{\k11}た{\k22}び{\k19}れ{\k12}た{\k29}譜面|<ス{\k32}#|<コ{\k21}#|<ア{\k26}微|<そ{\k24}#|<よ{\k19}風|<か{\k28}#|<ぜ{\k20}に{\k41}踊|<お{\k23}#|<ど{\k32}る{\k320}
+Comment: 0,0:00:19.83,0:00:29.98,K1,,0,0,0,karaoke,{\k320}{\k47}き{\k39}ら{\k44}き{\k61}ら{\k25}{\k20}涙|<な{\k21}#|<み{\k21}#|<だ{\k20}み{\k42}た{\k23}い{\k98}な{\k18}埃|<ほ{\k10}#|<こ{\k20}#|<り{\k38}が{\k47}舞|<ま{\k61}う{\k40}
+Comment: 0,0:00:26.61,0:00:34.22,K2,,0,0,0,karaoke,{\k320}{\k23}あ{\k16}の{\k27}日|<ひ{\k21}の{\k19}私|<わ{\k9}#|<た{\k55}#|<し{\k28}の{\k57}世|<せ{\k28}界|<か{\k15}#|<い{\k143}
+Comment: 0,0:00:30.38,0:00:38.88,K1,,0,0,0,karaoke,{\k277}{\k26}振|<ふ{\k21}り{\k22}返|<か{\k22}#|<え{\k21}る{\k21}た{\k32}び{\k43}心|<こ{\k50}#|<こ{\k44}#|<ろ{\k39}震|<ふ{\k22}#|<る{\k24}え{\k46}る{\k140}
+Comment: 0,0:00:34.62,0:00:45.54,K2,,0,0,0,karaoke,{\k320}{\k20}は{\k23}じ{\k24}ま{\k21}り{\k47}の{\k36}{\k12}音|<お{\k10}#|<と{\k18}が{\k44}聞|<き{\k59}こ{\k31}え{\k108}る{\k319}
+Comment: 0,0:00:39.28,0:00:49.45,K1,,0,0,0,karaoke,{\k320}{\k22}同|<お{\k18}#|<な{\k60}じ{\k28}音|<お{\k20}#|<ん{\k25}楽|<が{\k20}#|<く{\k39}は{\k66}二|<に{\k21}度|<ど{\k59}と{\k25}奏|<か{\k37}#|<な{\k27}で{\k36}ら{\k47}れ{\k36}な{\k71}い{\k40}
+Comment: 0,0:00:45.94,0:00:53.21,K2,,0,0,0,karaoke,{\k320}{\-spring}{\k28}春|<しゅ{\k25}#|<ん{\k72}{\-summer}夏|<か{\k20}{\-autumn}秋|<しゅ{\k15}#|<う{\k22}{\-winter}冬|<と{\k20}#|<う{\k16}{\-default}{\k24}め{\k36}ぐ{\k27}っ{\k11}て{\k13}ほ{\k38}ら{\k40}
+Comment: 0,0:00:49.85,0:00:55.94,K1,,0,0,0,karaoke,{\k307}{\k3}"{\k30}最|<さ{\k22}#|<い{\k21}後|<ご{\k19}の{\k23}曲|<きょ{\k22}#|<く{\k3}"{\k18}へ{\k19}行|<い{\k37}こ{\k45}う{\k40}
+Comment: 0,0:00:53.61,0:00:58.90,K2,,0,0,0,karaoke,{\k207}{\k35}響|<ひ{\k16}#|<び{\k21}け{\k3}!{\k25}今日|<きょ{\k19}#|<う{\k20}と{\k20}い{\k14}う{\k8}フ{\k16}レ{\k14}ー{\k12}ズ{\k99}
+Comment: 0,0:00:56.34,0:01:05.34,K1,,0,0,0,karaoke,{\k157}{\k22}生|<い{\k43}き{\k21}る{\k21}こ{\k22}と{\k21}に{\k17}夢|<む{\k25}中|<ちゅ{\k42}#|<う{\k20}に{\k24}な{\k18}れ{\k17}た{\k25}日|<ひ{\k23}々|<び{\k62}が{\k320}
+Comment: 0,0:00:59.30,0:01:12.26,K2,,0,0,0,karaoke,{\k320}{\k28}今|<い{\k21}#|<ま{\k20}を{\k41}生|<い{\k22}き{\k20}て{\k23}い{\k60}る{\k41}私|<わ{\k14}#|<た{\k35}#|<し{\k20}へ{\k54}と{\k64}繋|<つ{\k50}#|<な{\k25}が{\k18}っ{\k23}て{\k20}い{\k57}る{\k320}
+Comment: 0,0:01:05.96,0:01:16.17,K3,,0,0,0,karaoke,{\k320}{\k36}3 6 5|<さ{\k23}#|<ん{\k18}#|<びゃ{\k46}#|<く{\k20}#|<ろ{\k20}#|<く{\k23}#|<じゅ{\k42}#|<う{\k16}#|<ご{\k42}日|<に{\k27}#|<ち{\k17}の{\k17}軌|<き{\k30}跡|<せ{\k21}#|<き{\k16}で{\k43}受|<う{\k18}け{\k27}継|<つ{\k21}が{\k22}れ{\k20}る{\k23}想|<お{\k45}#|<も{\k28}い{\k40}
+Comment: 0,0:01:12.79,0:01:19.42,K2,,0,0,0,karaoke,{\k320}{\k30}次|<つ{\k22}#|<ぎ{\k18}の{\k46}あ{\k18}な{\k18}た{\k26}へ{\k23}と{\k19}向|<む{\k20}け{\k63}た{\k40}
+Comment: 0,0:01:16.57,0:01:25.96,K1,,0,0,0,karaoke,{\k284}{\k27}終|<お{\k20}わ{\k19}ら{\k31}な{\k43}い{\k15} {\k9}夢|<ゆ{\k12}#|<め{\k43}を{\k435}
+Comment: 0,0:01:19.82,0:01:25.96,K2,,0,0,0,karaoke,{\k193}{\k25}鳴|<な{\k62}り{\k22}止|<や{\k24}ま{\k22}ぬ{\k2} {\k17}歌|<う{\k19}#|<た{\k178}を{\k50}
