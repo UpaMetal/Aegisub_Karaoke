@@ -40,6 +40,7 @@ UpaMetal = {
             end
         end,
         -- 返回当前syl的假名注音表，下标代表分别是第几个假名注音，对应的值为其持续时间，支持非首尾的负K值占位空串(会将负时间平摊到其相邻两个的假名上)
+        -- 首尾的负K值占位空串应当写在syl中而不是furi中，且如果负K值大于前一个furi的K值，那么应当适当交换furi位置，但是实际上根本不可能出现，因为这意味着后一个字唱的比前一个字还快   
         get_furi_K_table_from_syl = function(syl)
             local furi_K_table = {}    
             local emptyFlag = false      
@@ -60,42 +61,47 @@ UpaMetal = {
             end     
             return furi_K_table 
         end,
-        --将行的开始时间与结束时间转换为帧，由于aegisub是以厘秒为单位，理论上此算法应只用于百帧以内的视频
-        --开始帧和结束帧分别都是在此时间段内会被渲染的帧的范围区间[开始帧, 结束帧），也就是说[开始帧, 结束帧 - 1]是会被渲染的
+        -- 以下是一些计算时间或帧型函数，除非aegisub自带函数无法使用否则请不要使用这些函数
+        -- 以下有关帧的函数请谨慎使用，因为其原理还暂未明朗，经常会出现跳帧等现象，但是也不是不能用，非强迫症可以忽视，强迫症最好别用，除非选择手动修复某些帧
+        -- 由于aegisub是以厘秒为单位，理论上此算法应只用于百帧以内的视频(但实际上因为某些原因连60帧都不能很好的适应，总会有跳帧现象)
+        --【猜想理论，未有严谨代码支撑】开始帧和结束帧分别都是在此时间段内会被渲染的帧的范围区间[开始帧, 结束帧），也就是说[开始帧, 结束帧 - 1]是会被渲染的
+        -- 将行的开始时间与结束时间转换为帧
         line_time_to_frame = function(line, frame_rate)   
-            return math.floor(line.start_time  * frame_rate / 1000), math.ceil(line.end_time  * frame_rate / 1000) 
+            return math.floor(line.start_time  * frame_rate / 1001), math.ceil(line.end_time  * frame_rate / 1001) 
         end,
         -- 将时间转换为帧，当前时间属于第几帧的范围内
         time_to_frame = function(time, frame_rate)
-            return math.floor(time  * frame_rate / 1000)
+            return math.floor(time  * frame_rate / 1001)
         end,
         -- 将帧转换为时间，要让此帧显示的最小开始时间
         frame_to_time = function(frame, frame_rate)
-            return math.floor(frame * 100 / frame_rate - 1) * 10
+            return math.floor(frame * 100 / frame_rate) * 10
         end,
 
         -- 自动调整上下总行行距
-        adjust_eff_margin = function(meta, line, spacing, overlapped_pixels)
-            spacing = spacing or 30
-            overlapped_pixels = overlapped_pixels or 20
+        adjust_eff_margin = function(meta, line, spacing, overlapped_pixels, center)
+            spacing = spacing or 30  -- 被视作同一行的间隔像素值
+            overlapped_pixels = overlapped_pixels or 20 -- 上下行水平方向无交集时想要重叠的像素值
+            center = center or false
             local l = line
             local topLine_width = 0
             local bottomLine_width = 0
             local left_eff_margin = 0
             local right_eff_margin = 0
+            -- 左对齐且无逻辑前继，且无特殊cancel标注(如果有特殊标注，那么它到下一个符合条件的行将不会被处理，一般不会使用) 
             if l.halign == "left" and not l.logic_prev and line.actor ~= "cancel" then
                 left_eff_margin = l.left
                 topLine_width = l.right
-                while l.logic_next do
+                while l.logic_next do -- 只要有后继行就累加，并分配left,right,center并计算总长度
                     l = l.logic_next
                     l.left = l.prev.right + spacing
                     l.right = l.left + l.width
                     l.center = (l.left + l.right) / 2
                     topLine_width = topLine_width + spacing + l.width
                 end
-                local lastl = l
+                local lastl = l -- 
                 l = l.next
-                if l then
+                if l then -- 如果l不是最后一行
                     if l.halign == "right" and not l.logic_prev then
                         while l.logic_next do
                             bottomLine_width = bottomLine_width + l.width + spacing
@@ -180,15 +186,15 @@ UpaMetal = {
                             end
                         end
                     end
-                else
+                else -- 如果lastl是最后一行
                     if topLine_width - left_eff_margin > meta.res_x - 10 then
                         _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
-                    else
+                    elseif center then
                         local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
                         lastl.left = lastl.left - adjust_dis
                         lastl.right = lastl.right - adjust_dis
                         lastl.center = (lastl.left + lastl.right) / 2
-                        while lastl.logic_prev do
+                        while lastl.logic_prev do -- 对同行的所有行进行调整
                             lastl = lastl.logic_prev
                             lastl.left = lastl.left - adjust_dis
                             lastl.right = lastl.right - adjust_dis
@@ -230,15 +236,17 @@ UpaMetal = {
         end,
         -- 如果一行里的两个图形绘图路径时钟方向相同则取并集,否则取交集的补集
         -- 固定直径圆形,可指定路径方向,入为圆的直径,绘图时钟方向(输入为nil则默认为0-顺时针)
-        circle = function(diameter, clockwise)
+        circle = function(diameter, offsetX, offsetY, clockwise)
             clockwise = clockwise or 0
+            offsetX = offsetX or 0
+            offsetY = offsetY or 0
             local S = "m %.3f %.3f b %.3f %.3f %.3f %.3f %.3f %.3f b %.3f %.3f %.3f %.3f %.3f %.3f "
             local a = diameter / 2
             local b = a * 4 / 3
             if clockwise == 0 then
-                return string.format(S, -a, 0, -a, -b, a ,-b, a, 0, a, b, -a, b, -a, 0)
+                return string.format(S, -a + offsetX, 0 + offsetY, -a + offsetX, -b + offsetY, a + offsetX, -b + offsetY, a + offsetX, 0 + offsetY, a + offsetX, b + offsetY, -a + offsetX, b + offsetY, -a + offsetX, 0 + offsetY)
             elseif clockwise == 1 then
-                return string.format(S, a, 0, a, -b, -a, -b, -a, 0, -a, b, a, b, a, 0)
+                return string.format(S, a + offsetX, 0 + offsetY, a + offsetX, -b + offsetY, -a + offsetX, -b + offsetY, -a + offsetX, 0 + offsetY, -a + offsetX, b + offsetY, a + offsetX, b + offsetY, a + offsetX, 0 + offsetY)
             end
         end,
         -- 随机范围直径圆形,可指定路径方向,输入为想要生成区间直径的最小值,最大值,绘图时钟方向(输入为nil则默认为0-顺时针)

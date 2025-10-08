@@ -123,30 +123,43 @@ function parse_code(meta, styles, line, templates, mods)
 end
 
 -- List of reserved words that can't be used as "line" template identifiers
+-- 列出所有识别为模板修饰符（关键字）的 token
+-- parse_template 在解析 effect 字符串时，会把这些词识别为特殊修饰符或关键字
 template_modifiers = {
 	"pre-line", "line", "syl", "furi", "char", "all", "repeat", "loop",
 	"notext", "keeptags", "noblank", "multi", "fx", "fxgroup"
 }
 
+-- 解析单行模板的函数
+-- 参数说明：
+-- meta    : 脚本/字幕的元信息（未在函数体使用，但通常传入以备需要）
+-- styles  : 字体/样式集合（未直接使用）
+-- line    : 当前被解析的 effect 所在的原始行对象（包含 line.text, line.effect 等）
+-- templates: 全局 templates 表（{ line = {...}, syl = {...}, furi = {...} }）
+-- mods    : 要解析的修饰符字符串（通常来自 line.effect）
 function parse_template(meta, styles, line, templates, mods)
+	-- 新建一个 template 表，作为当前解析结果的默认结构
+	-- 注意：如果发现同 id 的已有模板，会复用已有模板表（参见后面代码）
 	local template = {
-		t = "",
-		pre = "",
-		style = line.style,
-		loops = 1,
-		layer = line.layer,
-		addtext = true,
-		keeptags = false,
-		fxgroup = nil,
-		fx = nil,
-		multi = false,
-		isline = false,
-		perchar = false,
-		noblank = false
+		t = "",				-- 主体模板文本（用于 line 模板的主体部分，逐 syllable 处理时也会使用）
+		pre = "",			-- pre-line 的文本（在 line 之前生成的部分）
+		style = line.style,	--默认样式，继承自当前行
+		loops = 1,			-- 循环次数（repeat/loop 指定）
+		layer = line.layer,	-- 输出的 layer 默认沿用原行
+		addtext = true,		-- 是否在模板里追加原文文本，notext 会把它置为 false（注意仅对 syllable 循环追加有效）
+		keeptags = false,	-- 是否保留原文里的标签（若为 false 则使用 stripped 版本）
+		fxgroup = nil,		-- fxgroup 名称（可选）
+		fx = nil,			-- fx 名称（可选）
+		multi = false,		-- multi 标志（多重模板）
+		isline = false,		-- 是否是行级模板（line 或 pre-line 时设为 true）
+		perchar = false,	-- char 标志（按字符处理）
+		noblank = false		-- noblank 标志（省略空白处理）
 	}
-	local inserted = false
+	local inserted = false	-- 标记：是否已经把这个 template 插入到 templates 表中（line/syl/furi）
 
+	-- 将要解析的剩余修饰符字符串
 	local rest = mods
+	-- 逐 token 解析：用 string.headtail 取出第一个词（head）和剩余字符串（tail）
 	while rest ~= "" do
 		local m, t = string.headtail(rest)
 		rest = t
@@ -530,7 +543,7 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 		lstart = line.start_time,
 		lend = line.end_time,
 		ldur = line.duration,
-		lmid = line.start_time + line.duration/2,
+		lmid = line.start_time + line.duration / 2,
 		style = line.style,
 		actor = line.actor,
 		margin_l = ((line.margin_l > 0) and line.margin_l) or line.styleref.margin_l,
@@ -540,7 +553,7 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 		margin_v = ((line.margin_t > 0) and line.margin_t) or line.styleref.margin_t,
 		syln = line.kara.n,
 		li = line.i,
-		lleft = math.floor(line.left+0.5),
+		lleft = math.floor(line.left + 0.5),
 		lcenter = math.floor(line.left + line.width/2 + 0.5),
 		lright = math.floor(line.left + line.width + 0.5),
 		lwidth = math.floor(line.width + 0.5),
@@ -548,8 +561,8 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 		lmiddle = math.floor(line.middle + 0.5),
 		lbottom = math.floor(line.bottom + 0.5),
 		lheight = math.floor(line.height + 0.5),
-		lx = math.floor(line.x+0.5),
-		ly = math.floor(line.y+0.5)
+		lx = math.floor(line.x + 0.5),
+		ly = math.floor(line.y + 0.5)
 	}
 
 	tenv.orgline = line
@@ -617,10 +630,12 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 					end
 				else
 					-- hmm, no main template for the line... put original text in
-					if t.keeptags then
-						newline.text = newline.text .. line.text
-					else
-						newline.text = newline.text .. line.text_stripped
+					if t.addtext then
+						if t.keeptags then
+							newline.text = newline.text .. line.text
+						else
+							newline.text = newline.text .. line.text_stripped
+						end
 					end
 				end
 				newline.effect = "fx"
@@ -881,5 +896,5 @@ function macro_can_template(subs)
 	return false
 end
 
-aegisub.register_macro(tr"卡拉OK模板分块执行", tr"Applies karaoke effects from templates", macro_apply_templates, macro_can_template)
+aegisub.register_macro(tr"卡拉OK模板聚合执行", tr"Applies karaoke effects from templates", macro_apply_templates, macro_can_template)
 aegisub.register_filter(tr"Karaoke template", tr"Apply karaoke effect templates to the subtitles.\n\nSee the help file for information on how to use this.", 2000, filter_apply_templates)
