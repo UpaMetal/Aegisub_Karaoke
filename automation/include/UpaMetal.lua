@@ -44,7 +44,7 @@ UpaMetal = {
         get_furi_K_table_from_syl = function(syl)
             local furi_K_table = {}    
             local emptyFlag = false      
-            for i = 1, #syl.furi do
+            for i = 1, #syl.furi do --注音假名下标是从1开始的
                 local s = syl.furi[i]        
                 if(s.text_stripped == "" ) then            
                     emptyFlag = true     
@@ -78,30 +78,40 @@ UpaMetal = {
             return math.floor(frame * 100 / frame_rate) * 10
         end,
 
-        -- 自动调整上下总行行距
+        adjust_line_property = function(l, adjust_dis)   
+            l.left = l.left + adjust_dis
+            l.right = l.right + adjust_dis
+            l.center = (l.left + l.right) / 2
+            while l.logic_prev do
+                l = l.logic_prev
+                l.left = l.left + adjust_dis
+                l.right = l.right + adjust_dis
+                l.center = (l.left + l.right) / 2
+            end
+        end,
+        -- 自动调整上下总行左右边距
         adjust_eff_margin = function(meta, line, spacing, overlapped_pixels, center)
             spacing = spacing or 30  -- 被视作同一行的间隔像素值
-            overlapped_pixels = overlapped_pixels or 20 -- 上下行水平方向无交集时想要重叠的像素值
+            overlapped_pixels = overlapped_pixels or 40 -- 上下行水平方向无交集时想要重叠的像素值
             center = center or false
             local l = line
             local topLine_width = 0
             local bottomLine_width = 0
             local left_eff_margin = 0
             local right_eff_margin = 0
-            -- 左对齐且无逻辑前继，且无特殊cancel标注(如果有特殊标注，那么它到下一个符合条件的行将不会被处理，一般不会使用) 
-            if l.halign == "left" and not l.logic_prev and line.actor ~= "cancel" then
+            if l.effect:match("[Kk]araoke") and l.halign == "left" and not l.logic_prev then
                 left_eff_margin = l.left
                 topLine_width = l.right
-                while l.logic_next do -- 只要有后继行就累加，并分配left,right,center并计算总长度
+                while l.logic_next do
                     l = l.logic_next
                     l.left = l.prev.right + spacing
                     l.right = l.left + l.width
                     l.center = (l.left + l.right) / 2
                     topLine_width = topLine_width + spacing + l.width
                 end
-                local lastl = l -- 
+                local lastl = l 
                 l = l.next
-                if l then -- 如果l不是最后一行
+                if l then
                     if l.halign == "right" and not l.logic_prev then
                         while l.logic_next do
                             bottomLine_width = bottomLine_width + l.width + spacing
@@ -120,86 +130,38 @@ UpaMetal = {
                     if(bottomLine_width ~= 0) then
                         if(topLine_width + bottomLine_width < meta.res_x + overlapped_pixels) then
                             local adjust_dis = (meta.res_x + overlapped_pixels - topLine_width - bottomLine_width) / 2
-                            l.left = l.left - adjust_dis
-                            l.right = l.right - adjust_dis
-                            l.center = (l.left + l.right) / 2
-                            while l.logic_prev do
-                                l = l.logic_prev
-                                l.left = l.left - adjust_dis
-                                l.right = l.right - adjust_dis
-                                l.center = (l.left + l.right) / 2
-                            end
+                            UpaMetal.algorithm.adjust_line_property(l, -adjust_dis)
                             l = l.prev
-                            l.left = l.left + adjust_dis
-                            l.right = l.right + adjust_dis
-                            l.center = (l.left + l.right) / 2
-                            while l.logic_prev do
-                                l = l.logic_prev
-                                l.left = l.left + adjust_dis
-                                l.right = l.right + adjust_dis
-                                l.center = (l.left + l.right) / 2
-                            end
+                            UpaMetal.algorithm.adjust_line_property(l, adjust_dis)
                         else
                             if topLine_width - left_eff_margin > meta.res_x - 10 then
                                 _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
                             elseif topLine_width + left_eff_margin > meta.res_x then
-                                local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
-                                lastl.left = lastl.left - adjust_dis
-                                lastl.right = lastl.right - adjust_dis
-                                lastl.center = (lastl.left + lastl.right) / 2
-                                while lastl.logic_prev do
-                                    lastl = lastl.logic_prev
-                                    lastl.left = lastl.left - adjust_dis
-                                    lastl.right = lastl.right - adjust_dis
-                                    lastl.center = (lastl.left + lastl.right) / 2
-                                end
+                                local adjust_dis = (meta.res_x - topLine_width + left_eff_margin) / 2 - left_eff_margin
+                                UpaMetal.algorithm.adjust_line_property(lastl, adjust_dis)
                             end
 
                             if bottomLine_width - right_eff_margin > meta.res_x - 10 then
                                 _G.aegisub.log("下行存在超出屏幕外的文字,请手动调整相应行\n")
                             elseif bottomLine_width + right_eff_margin > meta.res_x then
                                 local adjust_dis = right_eff_margin - (meta.res_x - bottomLine_width + right_eff_margin) / 2
-                                l.left = l.left + adjust_dis
-                                l.right = l.right + adjust_dis
-                                l.center = (l.left + l.right) / 2
-                                while l.logic_prev do
-                                    l = l.logic_prev
-                                    l.left = l.left + adjust_dis
-                                    l.right = l.right + adjust_dis
-                                    l.center = (l.left + l.right) / 2
-                                end
+                                UpaMetal.algorithm.adjust_line_property(l, adjust_dis)
                             end
                         end
                     else
                         if topLine_width - left_eff_margin > meta.res_x - 10 then
                             _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
-                        else
-                            local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
-                            lastl.left = lastl.left - adjust_dis
-                            lastl.right = lastl.right - adjust_dis
-                            lastl.center = (lastl.left + lastl.right) / 2
-                            while lastl.logic_prev do
-                                lastl = lastl.logic_prev
-                                lastl.left = lastl.left - adjust_dis
-                                lastl.right = lastl.right - adjust_dis
-                                lastl.center = (lastl.left + lastl.right) / 2
-                            end
+                        elseif center then
+                            local adjust_dis = (meta.res_x - topLine_width + left_eff_margin) / 2 - left_eff_margin
+                            UpaMetal.algorithm.adjust_line_property(lastl, adjust_dis)
                         end
                     end
-                else -- 如果lastl是最后一行
+                else
                     if topLine_width - left_eff_margin > meta.res_x - 10 then
                         _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
                     elseif center then
-                        local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
-                        lastl.left = lastl.left - adjust_dis
-                        lastl.right = lastl.right - adjust_dis
-                        lastl.center = (lastl.left + lastl.right) / 2
-                        while lastl.logic_prev do -- 对同行的所有行进行调整
-                            lastl = lastl.logic_prev
-                            lastl.left = lastl.left - adjust_dis
-                            lastl.right = lastl.right - adjust_dis
-                            lastl.center = (lastl.left + lastl.right) / 2
-                        end
+                        local adjust_dis = (meta.res_x - topLine_width + left_eff_margin) / 2 - left_eff_margin
+                        UpaMetal.algorithm.adjust_line_property(lastl, adjust_dis)
                     end
                 end
             end
@@ -222,14 +184,14 @@ UpaMetal = {
         end,
         --封闭图形
         close = function(ass_shape)       
-            local s={}      
+            local s = {}      
             for m in ass_shape:gmatch("m[^m]+") do          
-                local start_point=m:match(" [-.%d]+ [-.%d]+ ")          
+                local start_point = m:match(" [-.%d]+ [-.%d]+ ")          
                 local end_point=m:match(" [-.%d]+ [-.%d]+ $")           
-                if start_point==end_point then              
-                    s[#s+1]=m           
+                if start_point == end_point then              
+                    s[#s + 1] = m           
                 else            
-                    s[#s+1]=m.." l"..start_point        
+                    s[#s + 1] = m.." l" .. start_point        
                 end     
             end     
             return table.concat(s)   
@@ -287,14 +249,16 @@ UpaMetal = {
             end
         end,
         -- 固定边长正方形，可指定路径方向,输入为正方形边长,高,绘图时钟方向(输入为nil则默认为0-顺时针)
-        square = function(length, clockwise)
+        square = function(length, offsetX, offsetY, clockwise)
             clockwise = clockwise or 0
+            offsetX = offsetX or 0
+            offsetY = offsetY or 0
             local S = "m %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f l %.3f %.3f "
             local a = length
             if clockwise == 0 then
-                return string.format(S, -a / 2, -a / 2, a / 2, -a / 2, a / 2, a / 2, -a / 2, a / 2, -a / 2, -a / 2)
+                return string.format(S, -a / 2 + offsetX, -a / 2 + offsetY, a / 2 + offsetX, -a / 2 + offsetY, a / 2 + offsetX, a / 2 + offsetY, -a / 2 + offsetX, a / 2 + offsetY, -a / 2 + offsetX, -a / 2 + offsetY)
             elseif clockwise == 1 then
-                return string.format(S, -a / 2, -a / 2, -a / 2, a / 2, a / 2, a / 2, a / 2, -a / 2, -a / 2, -a / 2)
+                return string.format(S, -a / 2 + offsetX, -a / 2 + offsetY, -a / 2 + offsetX, a / 2 + offsetY, a / 2 + offsetX, a / 2 + offsetY, a / 2 + offsetX, -a / 2 + offsetY, -a / 2 + offsetX, -a / 2 + offsetY)
             end
         end,
         -- 随机范围边长正方形,可指定路径方向,
@@ -360,6 +324,63 @@ UpaMetal = {
             elseif x == 9 then
                 return shape_pound_sign
             end
+        end,
+        --平移绘图
+        translate = function(ass_shape, x_offset, y_offset) 
+            x_offset = x_offset or 0
+            y_offset = y_offset or 0
+            local shape = string.gsub(ass_shape, "(-?%d*%.?%d+)%s+(-?%d*%.?%d+)",
+            function (x, y)
+                x = tonumber(x) + x_offset
+                y = tonumber(y) + y_offset
+                return string.format("%.3f %.3f", x, y)
+            end)
+            return shape
+        end,
+        --缩放绘图
+        scale = function(ass_shape, x_scale, y_scale, scale_center, scale_middle)
+            x_scale = x_scale or 100
+            y_scale = y_scale or x_scale
+            scale_center = scale_center or 0
+            scale_middle = scale_middle or 0
+            local shape = string.gsub(ass_shape, "(-?%d*%.?%d+)%s+(-?%d*%.?%d+)",
+            function (x, y)
+                x = scale_center + (tonumber(x) - scale_center) * x_scale / 100
+                y = scale_middle + (tonumber(y) - scale_middle) * y_scale / 100
+                return string.format("%.3f %.3f", x, y)
+            end)
+            return shape
+        end,
+        --旋转绘图
+        rotate = function(ass_shape, angle, rotate_center, rotate_middle)
+            angle = angle or 0
+            local sum_x, sum_y, count = 0, 0, 0
+            for x, y in ass_shape:gmatch("(-?%d*%.?%d+)%s+(-?%d*%.?%d+)") do
+                sum_x = sum_x + tonumber(x)
+                sum_y = sum_y + tonumber(y)
+                count = count + 1
+            end
+
+            -- 若未指定，则用shape中心
+            if not rotate_center or not rotate_middle then
+                rotate_center = rotate_center or (count > 0 and sum_x / count or 0)
+                rotate_middle = rotate_middle or (count > 0 and sum_y / count or 0)
+            end
+            local rad = math.rad(angle)
+            local cos_r = math.cos(rad)
+            local sin_r = math.sin(rad)
+
+            -- 用正则匹配每一对坐标 (x, y)
+            local shape = string.gsub(ass_shape, "(-?%d*%.?%d+)%s+(-?%d*%.?%d+)", function(x, y)
+
+                local dx, dy = x - rotate_center, y - rotate_middle
+                local new_x = dx * cos_r - dy * sin_r + rotate_center
+                local new_y = dx * sin_r + dy * cos_r + rotate_middle
+
+                return string.format("%.3f %.3f", new_x, new_y)
+            end)
+
+            return shape
         end
     },
     -- 输出一般是特效代码的组合的string
@@ -386,7 +407,7 @@ UpaMetal = {
             local t_start = syl.start_time - time_offset                   
             for i = 1, n do                                        
                 local k = furi_K_table[i]                                            
-                local x_end = Yutils.math.round(x_start + i * width / n, 3)                                         
+                local x_end = Yutils.math.round(x_start + i * width / n, 3) --保留3位小数                                         
                 local t_end = t_start + k                                            
                 result = result .. string.format("\\t(%d, %d, \\clip(%.3f, %.3f, %.3f, %.3f)", t_start, t_end, left, top, x_end, bottom) .. (tag_in[i] or "") .. ")" .. (tag_out[i] or "")                               
                 t_start = t_end                     

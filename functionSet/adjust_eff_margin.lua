@@ -1,12 +1,24 @@
-function adjust_eff_margin(line, spacing, overlapped_pixels)
+function adjust_line_property(l, adjust_dis)
+    l.left = l.left + adjust_dis
+    l.right = l.right + adjust_dis
+    l.center = (l.left + l.right) / 2
+    while l.logic_prev do
+        l = l.logic_prev
+        l.left = l.left + adjust_dis
+        l.right = l.right + adjust_dis
+        l.center = (l.left + l.right) / 2
+    end
+end
+adjust_eff_margin = function(meta, line, spacing, overlapped_pixels, center)
     spacing = spacing or 30
-    overlapped_pixels = overlapped_pixels or 20
+    overlapped_pixels = overlapped_pixels or 40
+    center = center or false
     local l = line
     local topLine_width = 0
     local bottomLine_width = 0
     local left_eff_margin = 0
     local right_eff_margin = 0
-    if l.halign == "left" and not l.logic_prev then
+    if l.effect:match("[Kk]araoke") and l.halign == "left" and not l.logic_prev and line.actor ~= "cancel" then
         left_eff_margin = l.left
         topLine_width = l.right
         while l.logic_next do
@@ -34,89 +46,40 @@ function adjust_eff_margin(line, spacing, overlapped_pixels)
                     bottoml.center = (bottoml.left + bottoml.right) / 2
                 end
             end
-            if(bottomLine_width ~= 0) then
-                if(topLine_width + bottomLine_width < meta.res_x + overlapped_pixels) then
+            if (bottomLine_width ~= 0) then
+                if (topLine_width + bottomLine_width < meta.res_x + overlapped_pixels) then
                     local adjust_dis = (meta.res_x + overlapped_pixels - topLine_width - bottomLine_width) / 2
-                    l.left = l.left - adjust_dis
-                    l.right = l.right - adjust_dis
-                    l.center = (l.left + l.right) / 2
-                    while l.logic_prev do
-                        l = l.logic_prev
-                        l.left = l.left - adjust_dis
-                        l.right = l.right - adjust_dis
-                        l.center = (l.left + l.right) / 2
-                    end
+                    adjust_line_property(l, -adjust_dis)
                     l = l.prev
-                    l.left = l.left + adjust_dis
-                    l.right = l.right + adjust_dis
-                    l.center = (l.left + l.right) / 2
-                    while l.logic_prev do
-                        l = l.logic_prev
-                        l.left = l.left + adjust_dis
-                        l.right = l.right + adjust_dis
-                        l.center = (l.left + l.right) / 2
-                    end
+                    adjust_line_property(l, adjust_dis)
                 else
                     if topLine_width - left_eff_margin > meta.res_x - 10 then
-                        _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
+                        _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行 ")
                     elseif topLine_width + left_eff_margin > meta.res_x then
-                        local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
-                        lastl.left = lastl.left - adjust_dis
-                        lastl.right = lastl.right - adjust_dis
-                        lastl.center = (lastl.left + lastl.right) / 2
-                        while lastl.logic_prev do
-                            lastl = lastl.logic_prev
-                            lastl.left = lastl.left - adjust_dis
-                            lastl.right = lastl.right - adjust_dis
-                            lastl.center = (lastl.left + lastl.right) / 2
-                        end
+                        local adjust_dis = (meta.res_x - topLine_width + left_eff_margin) / 2 - left_eff_margin
+                        adjust_line_property(lastl, adjust_dis)
                     end
-
                     if bottomLine_width - right_eff_margin > meta.res_x - 10 then
-                        _G.aegisub.log("下行存在超出屏幕外的文字,请手动调整相应行\n")
+                        _G.aegisub.log("下行存在超出屏幕外的文字,请手动调整相应行 ")
                     elseif bottomLine_width + right_eff_margin > meta.res_x then
                         local adjust_dis = right_eff_margin - (meta.res_x - bottomLine_width + right_eff_margin) / 2
-                        l.left = l.left + adjust_dis
-                        l.right = l.right + adjust_dis
-                        l.center = (l.left + l.right) / 2
-                        while l.logic_prev do
-                            l = l.logic_prev
-                            l.left = l.left + adjust_dis
-                            l.right = l.right + adjust_dis
-                            l.center = (l.left + l.right) / 2
-                        end
+                        adjust_line_property(l, adjust_dis)
                     end
                 end
             else
                 if topLine_width - left_eff_margin > meta.res_x - 10 then
-                    _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
-                else
-                    local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
-                    lastl.left = lastl.left - adjust_dis
-                    lastl.right = lastl.right - adjust_dis
-                    lastl.center = (lastl.left + lastl.right) / 2
-                    while lastl.logic_prev do
-                        lastl = lastl.logic_prev
-                        lastl.left = lastl.left - adjust_dis
-                        lastl.right = lastl.right - adjust_dis
-                        lastl.center = (lastl.left + lastl.right) / 2
-                    end
+                    _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行 ")
+                elseif center then
+                    local adjust_dis = (meta.res_x - topLine_width + left_eff_margin) / 2 - left_eff_margin
+                    adjust_line_property(lastl, adjust_dis)
                 end
             end
         else
             if topLine_width - left_eff_margin > meta.res_x - 10 then
-                _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行\n")
-            else
-                local adjust_dis = left_eff_margin - (meta.res_x - topLine_width + left_eff_margin) / 2
-                lastl.left = lastl.left - adjust_dis
-                lastl.right = lastl.right - adjust_dis
-                lastl.center = (lastl.left + lastl.right) / 2
-                while lastl.logic_prev do
-                    lastl = lastl.logic_prev
-                    lastl.left = lastl.left - adjust_dis
-                    lastl.right = lastl.right - adjust_dis
-                    lastl.center = (lastl.left + lastl.right) / 2
-                end
+                _G.aegisub.log("上行存在超出屏幕外的文字,请手动调整相应行 ")
+            elseif center then
+                local adjust_dis = (meta.res_x - topLine_width + left_eff_margin) / 2 - left_eff_margin
+                adjust_line_property(lastl, adjust_dis)
             end
         end
     end

@@ -44,6 +44,15 @@ include("karaskel.lua")
 
 -- Find and parse/prepare all karaoke template lines
 function parse_templates(meta, styles, subs)
+	--[[作用：初始化要返回的 templates 表（字典/容器）。
+		各字段含义（典型约定）：
+		once：一次性模板（可能只运行一次或对整个文件一次性应用的模板）。
+		line：针对整行（line 级别）的模板（会按行匹配并应用）。
+		syl：针对音节（syllable）级别的模板 —— 卡拉 OK 最常用的。
+		char：针对字符（character）级别的模板（逐字特效）。
+		furi：假名/注音（furigana）级别模板（若使用日语注音分层）。
+		styles：用来记录文件中出现了哪些样式名（templates.styles[style_name] = true），供后续决定哪些行需要处理或方便按样式分组。
+	]]
 	local templates = { once = {}, line = {}, syl = {}, char = {}, furi = {}, styles = {} }
 	local i = 1
 	while i <= #subs do
@@ -69,6 +78,10 @@ function parse_templates(meta, styles, subs)
 	return templates
 end
 
+--[[
+	line: 当前的行对象(sub[i])
+	templates: 当前收集的模板表
+	]]
 function parse_code(meta, styles, line, templates, mods)
 	local template = {
 		code = line.text,
@@ -97,7 +110,7 @@ function parse_code(meta, styles, line, templates, mods)
 		elseif m == "furi" then
 			aegisub.debug.out(5, "Found per-syl code line: %s\n", line.text)
 			table.insert(templates.furi, template)
-			inserted = true
+			inserted = true	-- 表示模板行已被明确分类
 		elseif m == "all" then
 			template.style = nil
 		elseif m == "noblank" then
@@ -142,8 +155,8 @@ function parse_template(meta, styles, line, templates, mods)
 	-- 注意：如果发现同 id 的已有模板，会复用已有模板表（参见后面代码）
 	local template = {
 		t = "",				-- 主体模板文本（用于 line 模板的主体部分，逐 syllable 处理时也会使用）
-		pre = "",			-- pre-line 的文本（在 line 之前生成的部分）
-		style = line.style,	--默认样式，继承自当前行
+		pre = "",			-- pre-line 的文本（在 line 之前）
+		style = line.style,	-- 默认样式，继承自当前行
 		loops = 1,			-- 循环次数（repeat/loop 指定）
 		layer = line.layer,	-- 输出的 layer 默认沿用原行
 		addtext = true,		-- 是否在模板里追加原文文本，notext 会把它置为 false（注意仅对 syllable 循环追加有效）
@@ -183,7 +196,7 @@ function parse_template(meta, styles, line, templates, mods)
 				rest = t
 			end
 			-- get old template if there is one
-			if id and templates.line[id] then
+			if id and templates.line[id] then	-- local templates = { once = {}, line = {}, syl = {}, char = {}, furi = {}, styles = {} }
 				template = templates.line[id]
 			elseif id then
 				template.id = id
@@ -196,7 +209,7 @@ function parse_template(meta, styles, line, templates, mods)
 			-- apply text to correct string
 			if m == "line" then
 				template.t = template.t .. line.text
-			else -- must be pre-line
+			else
 				template.pre = template.pre .. line.text
 			end
 		elseif m == "syl" and not template.isline then
@@ -876,6 +889,7 @@ function macro_apply_templates(subs, sel)
 	aegisub.set_undo_point("apply karaoke template")
 end
 
+-- 判断当前字幕文件是否含有模板行(为了效率仅判断前50行)
 function macro_can_template(subs)
 	-- check if this file has templates in it, don't allow running the macro if it hasn't
 	local num_dia = 0
@@ -896,5 +910,6 @@ function macro_can_template(subs)
 	return false
 end
 
+-- 注册两个入口
 aegisub.register_macro(tr"卡拉OK模板聚合执行", tr"Applies karaoke effects from templates", macro_apply_templates, macro_can_template)
 aegisub.register_filter(tr"Karaoke template", tr"Apply karaoke effect templates to the subtitles.\n\nSee the help file for information on how to use this.", 2000, filter_apply_templates)
