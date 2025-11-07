@@ -43,8 +43,9 @@ include("karaskel.lua")
 
 
 -- Find and parse/prepare all karaoke template lines
-function parse_templates(meta, styles, subs)
-	--[[作用：初始化要返回的 templates 表（字典/容器）。
+--[[输入: meta: 视频分辨率等信息, styles: 样式表, subs: ass文件的行
+	输出: templates: 根据关键字，分别存入不同的键中
+	作用：初始化要返回的 templates 表（字典/容器）。
 		各字段含义（典型约定）：
 		once：一次性模板（可能只运行一次或对整个文件一次性应用的模板）。
 		line：针对整行（line 级别）的模板（会按行匹配并应用）。
@@ -53,7 +54,8 @@ function parse_templates(meta, styles, subs)
 		furi：假名/注音（furigana）级别模板（若使用日语注音分层）。
 		styles：用来记录文件中出现了哪些样式名（templates.styles[style_name] = true），供后续决定哪些行需要处理或方便按样式分组。
 	]]
-	local templates = { once = {}, line = {}, syl = {}, char = {}, furi = {}, styles = {} }
+function parse_templates(meta, styles, subs)
+	local templates = { once = {}, line = {}, postline = {}, syl = {}, char = {}, furi = {}, styles = {} } 
 	local i = 1
 	while i <= #subs do
 		aegisub.progress.set((i-1) / #subs * 100)
@@ -128,7 +130,7 @@ function parse_code(meta, styles, line, templates, mods)
 			aegisub.debug.out(3, "Unknown modifier in code template: %s\nIn template code line: %s\nEffect field: %s\n\n", m, line.text, line.effect)
 		end
 	end
-
+	--默认为code once
 	if not inserted then
 		aegisub.debug.out(5, "Found implicit run-once code line: %s\n", line.text)
 		table.insert(templates.once, template)
@@ -139,7 +141,7 @@ end
 -- 列出所有识别为模板修饰符（关键字）的 token
 -- parse_template 在解析 effect 字符串时，会把这些词识别为特殊修饰符或关键字
 template_modifiers = {
-	"pre-line", "line", "syl", "furi", "char", "all", "repeat", "loop",
+	"pre-line", "post-line", "line", "syl", "furi", "char", "all", "repeat", "loop",
 	"notext", "keeptags", "noblank", "multi", "fx", "fxgroup"
 }
 
@@ -156,6 +158,7 @@ function parse_template(meta, styles, line, templates, mods)
 	local template = {
 		t = "",				-- 主体模板文本（用于 line 模板的主体部分，逐 syllable 处理时也会使用）
 		pre = "",			-- pre-line 的文本（在 line 之前）
+		post = "", 			-- 新加一个post-line的文本，但其实并没有什么作用，保持统一
 		style = line.style,	-- 默认样式，继承自当前行
 		loops = 1,			-- 循环次数（repeat/loop 指定）
 		layer = line.layer,	-- 输出的 layer 默认沿用原行
@@ -196,7 +199,7 @@ function parse_template(meta, styles, line, templates, mods)
 				rest = t
 			end
 			-- get old template if there is one
-			if id and templates.line[id] then	-- local templates = { once = {}, line = {}, syl = {}, char = {}, furi = {}, styles = {} }
+			if id and templates.line[id] then	-- local templates = { once = {}, line = {}, postline = {}, syl = {}, char = {}, furi = {}, styles = {} }
 				template = templates.line[id]
 			elseif id then
 				template.id = id
@@ -212,6 +215,11 @@ function parse_template(meta, styles, line, templates, mods)
 			else
 				template.pre = template.pre .. line.text
 			end
+		elseif m == "post-line" and not inserted then
+			table.insert(templates.postline, template)
+			inserted = true
+			template.isline = true
+			template.post = template.post .. line.text
 		elseif m == "syl" and not template.isline then
 			table.insert(templates.syl, template)
 			inserted = true
@@ -266,6 +274,7 @@ function parse_template(meta, styles, line, templates, mods)
 		end
 	end
 
+	--默认为syl模板
 	if not inserted then
 		table.insert(templates.syl, template)
 	end
@@ -274,6 +283,17 @@ function parse_template(meta, styles, line, templates, mods)
 	end
 end
 
+--[[
+	输入:
+		templates	一个模板表（可能是 templates.syl, templates.line, 等）
+		line		当前要处理的字幕行
+		tenv		模板执行环境（template environment），包含 fxgroup 信息等
+	输出:
+		迭代器函数
+	作用:
+		「智能过滤器」，它根据行样式和 fxgroup，从模板列表中逐个返回可应用的模板，供后续的模板执行函数使用
+
+]]
 -- Iterator function, return all templates that apply to the given line
 function matching_templates(templates, line, tenv)
 	local lastkey = nil
@@ -293,6 +313,15 @@ function matching_templates(templates, line, tenv)
 	return test_next
 end
 
+--[[
+	输入:
+		tenv		模板执行环境（template environment）
+		initmaxj	初始的循环次数上限
+	输出:
+		j, maxj
+	作用:
+		一个迭代器函数（itor()），每次调用都会返回当前循环次数与最大次数，可动态改变maxj
+]]
 -- Iterator function, run a loop using tenv.j and tenv.maxj as loop controllers
 function template_loop(tenv, initmaxj)
 	local oldmaxj = initmaxj
@@ -313,21 +342,38 @@ function template_loop(tenv, initmaxj)
 	return itor
 end
 
+--[[
 
+	作用:
+		建立模板运行环境（tenv）；
+		注册所有辅助函数（retime, relayer, remember 等）；
+		执行 once 类模板；
+		预处理所有字幕行（karaskel.preproc_line）；
+		按行执行 apply_line() 应用模板。
+]]
 -- Apply the templates
 function apply_templates(meta, styles, subs, templates)
+	-- 构建执行环境 tenv
 	-- the environment the templates will run in
 	local tenv = {
 		meta = meta,
 		-- put in some standard libs
 		string = string,
 		math = math,
-		_G = _G
+		_G = _G				--自引用 tenv.tenv = tenv，方便内部函数递归访问环境
 	}
 	tenv.tenv = tenv
 
 	-- Define helper functions in tenv
-
+	--[[
+		定义内置辅助函数:
+			retime(mode, addstart, addend)	调整当前行或音节的时间范围	!retime("syl", -100, 100)!
+			relayer(layer)	改变层级	!relayer(1)!
+			restyle(style)	切换样式	!restyle("Romaji")!
+			maxloop(n)	修改当前循环次数上限	!maxloop(5)!
+			loopctl(j, maxj)	同时修改当前循环进度和上限	——
+			这些函数的返回值都是空字符串 ""
+	]]
 	tenv.retime = function(mode, addstart, addend)
 		local line, syl = tenv.line, tenv.syl
 		local newstart, newend = line.start_time, line.end_time
@@ -396,7 +442,11 @@ function apply_templates(meta, styles, subs, templates)
 		tenv.maxj = newmaxj
 		return ""
 	end
-
+	--[[
+		作用:
+			模板脚本可以用 !remember! / !recall! 存取变量，
+			实现“跨行记忆”或“跨音节状态保存”
+	]]
 	tenv.recall = {}
 	setmetatable(tenv.recall, {
 		decorators = {},
@@ -427,6 +477,13 @@ function apply_templates(meta, styles, subs, templates)
 		tenv.recall[name] = value
 		return value
 	end
+
+	--[[
+		作用:
+			通过 metatable 在调用 tenv.recall(name) 时，
+			可以自动加前缀区分作用域（line/syl/basesyl）。
+			所以同一个变量名可以在不同层级保存不同值
+	]]
 	tenv.remember_line = function(name, value)
 		return tenv.remember(name, value, getmetatable(tenv.recall).decorator_line)
 	end
@@ -493,6 +550,7 @@ function apply_templates(meta, styles, subs, templates)
 	end
 end
 
+-- 内联变量(自适应变量的定义)
 function set_ctx_syl(varctx, line, syl)
 	varctx.sstart = syl.start_time
 	varctx.send = syl.end_time
@@ -546,11 +604,23 @@ function set_ctx_syl(varctx, line, syl)
 	varctx.y = varctx.sy
 end
 
+--[[
+	输入:
+		meta	视频字幕文件的元数据（分辨率、fps、时基等）
+		styles	样式表，包含所有的字幕样式定义
+		subs	当前字幕对象（可以被修改、append新行）
+		line	当前正在处理的一整行字幕（SSA line对象）
+		templates	已经解析好的模板集合（包含 .line, .syl, .furi 三类）
+		tenv	模板运行时的执行环境（环境变量，存放局部上下文信息
+	输出:
+
+]]
 function apply_line(meta, styles, subs, line, templates, tenv)
 	-- Tell whether any templates were applied to this line, needed to know whether the original line should be removed from input
-	local applied_templates = false
+	local applied_templates = false		-- 用于标记这一行是否真正生成过特效字幕
 
 	-- General variable replacement context
+	-- line级内联变量
 	local varctx = {
 		layer = line.layer,
 		lstart = line.start_time,
@@ -578,6 +648,11 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 		ly = math.floor(line.y + 0.5)
 	}
 
+	-- 设置模板环境
+	--[[
+		这些用于模板运行时环境中，控制当前处理的是哪一类元素。
+		比如 tenv.syl 会在处理音节时被设置成当前 syllable
+	]]
 	tenv.orgline = line
 	tenv.line = nil
 	tenv.syl = nil
@@ -618,7 +693,6 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 				run_code_template(t, tenv)
 			else
 				aegisub.debug.out(5, "Line template, pre = '%s', t = '%s'\n", t.pre, t.t)
-				applied_templates = true
 				local newline = table.copy(line)
 				tenv.line = newline
 				newline.layer = t.layer
@@ -679,6 +753,46 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 			applied_templates = true
 		end
 	end
+
+	-- 在最后执行post-line模板
+	-- Apply post-line templates (executed after syl/furi)
+	aegisub.debug.out(5, "Running post-line templates\n")
+	for t in matching_templates(templates.postline, line, tenv) do
+		if aegisub.progress.is_cancelled() then break end
+
+		-- Set varctx for per-line variables
+		varctx["start"] = varctx.lstart
+		varctx["end"] = varctx.lend
+		varctx.dur = varctx.ldur
+		varctx.kdur = math.floor(varctx.dur / 10)
+		varctx.mid = varctx.lmid
+		varctx.i = varctx.li
+		varctx.left = varctx.lleft
+		varctx.center = varctx.lcenter
+		varctx.right = varctx.lright
+		varctx.width = varctx.lwidth
+		varctx.top = varctx.ltop
+		varctx.middle = varctx.lmiddle
+		varctx.bottom = varctx.lbottom
+		varctx.height = varctx.lheight
+		varctx.x = varctx.lx
+		varctx.y = varctx.ly
+
+		for j, maxj in template_loop(tenv, t.loops) do
+			aegisub.debug.out(5, "Line template, post = '%s'\n", t.post)
+			applied_templates = true
+			local newline = table.copy(line)
+			tenv.line = newline
+			newline.layer = t.layer
+			newline.text = ""
+			if t.post ~= "" then
+				newline.text = newline.text .. run_text_template(t.post, tenv, varctx)
+			end
+			newline.effect = "fx"
+			subs.append(newline)
+		end
+	end
+	aegisub.debug.out(5, "Done post-line templates\n\n")
 
 	return applied_templates
 end
@@ -873,6 +987,7 @@ end
 
 
 -- Main function to do the templating
+-- 解析并执行模板行的主函数
 function filter_apply_templates(subs, config)
 	aegisub.progress.task("Collecting header data...")
 	local meta, styles = karaskel.collect_head(subs, true)

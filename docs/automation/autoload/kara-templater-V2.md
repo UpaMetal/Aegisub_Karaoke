@@ -6,4 +6,5 @@
 `line.next`  - 当前行的物理结构的上一行(仅真正含有歌词字幕的dialogue行)，如果没有则为`nil`  
 `line.logic_prev` - 若当前的`line.prev`开始时间与结束时间与当前`line`相同，那么这个变量指`line.prev`，否则为`nil`  
 `line.logic_next` - 若当前的`line.next`开始时间与结束时间与当前`line`相同，那么这个变量指`line.next`，否则为`nil`  
-- 修改了line中的notext不再输出文本
+- 修改了line级模板(包括line, pre-line)中的notext不再输出文本
+- 增添了新关键字(postline级模板)post-line, 用于在line，syl级模板之后，也就是(目前是)最后插入fx行，即向最顶层(偏向人眼层)绘制

@@ -76,11 +76,11 @@ def process_file(input_path, output_path):
                     temp3 = 0.2
                     temp4 = gap - 0.2
                 elif gap >= 1.2 and gap < 1.4:
-                    temp4 = gap - 1
-                    temp3 = 1
+                    temp3 = gap - 1
+                    temp4 = 1
                 elif gap >= 1.4 and gap < 1.8:
-                    temp4 = 0.4
-                    temp3 = gap - 0.4
+                    temp3 = 0.4
+                    temp4 = gap - 0.4
                 elif gap >= 1.8 and gap < 4:
                     temp3 = 0.4
                     temp4 = gap - 0.8
