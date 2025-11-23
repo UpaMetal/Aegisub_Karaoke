@@ -99,7 +99,7 @@ UpaMetal = {
             local bottomLine_width = 0
             local left_eff_margin = 0
             local right_eff_margin = 0
-            if l.effect:match("[Kk]araoke") and l.halign == "left" and not l.logic_prev then
+            if l.class == "dialogue" and (l.effect == "" or l.effect:match("[Kk]araoke")) and l.halign == "left" and not l.logic_prev then
                 left_eff_margin = l.left
                 topLine_width = l.right
                 while l.logic_next do

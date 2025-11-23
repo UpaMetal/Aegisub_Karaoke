@@ -524,13 +524,13 @@ function apply_templates(meta, styles, subs, templates)
 	for idx, l in ipairs(kara_lines) do
 		if(idx > 1) then
 			l.prev = kara_lines[idx - 1]
-			l.logic_prev = (l.start_time == l.prev.start_time and l.end_time == l.prev.end_time and l.halign == l.prev.halign) and l.prev or nil
+			l.logic_prev = (l.start_time == l.prev.start_time and l.end_time == l.prev.end_time and l.halign == l.prev.halign) or nil
 		else
 			l.prev = nil
 		end
 		if(idx < n) then
 			l.next = kara_lines[idx + 1]
-			l.logic_next = (l.start_time == l.next.start_time and l.end_time == l.next.end_time and l.halign == l.next.halign) and l.next or nil
+			l.logic_next = (l.start_time == l.next.start_time and l.end_time == l.next.end_time and l.halign == l.next.halign) or nil
 		else
 			l.next = nil
 		end
@@ -618,7 +618,6 @@ end
 function apply_line(meta, styles, subs, line, templates, tenv)
 	-- Tell whether any templates were applied to this line, needed to know whether the original line should be removed from input
 	local applied_templates = false		-- 用于标记这一行是否真正生成过特效字幕
-
 	-- General variable replacement context
 	-- line级内联变量
 	local varctx = {
